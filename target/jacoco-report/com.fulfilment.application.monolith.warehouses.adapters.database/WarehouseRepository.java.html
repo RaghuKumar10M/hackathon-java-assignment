@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WarehouseRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java-code-assignment</a> &gt; <a href="index.source.html" class="el_package">com.fulfilment.application.monolith.warehouses.adapters.database</a> &gt; <span class="el_source">WarehouseRepository.java</span></div><h1>WarehouseRepository.java</h1><pre class="source lang-java linenums">package com.fulfilment.application.monolith.warehouses.adapters.database;
+
+import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
+import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
+
+import java.util.List;
+
+@ApplicationScoped
+<span class="fc" id="L12">public class WarehouseRepository implements WarehouseStore, PanacheRepository&lt;DbWarehouse&gt; {</span>
+
+  @Override
+  public List&lt;Warehouse&gt; getAll() {
+<span class="fc" id="L16">    return this.listAll().stream().map(DbWarehouse::toWarehouse).toList();</span>
+  }
+
+  @Override
+  public void create(Warehouse warehouse) {
+<span class="fc" id="L21">    DbWarehouse dbWarehouse = new DbWarehouse();</span>
+<span class="fc" id="L22">    dbWarehouse.setBusinessUnitCode(warehouse.getBusinessUnitCode());</span>
+<span class="fc" id="L23">    dbWarehouse.setLocation(warehouse.getLocation());</span>
+<span class="fc" id="L24">    dbWarehouse.setCapacity(warehouse.getCapacity());</span>
+<span class="fc" id="L25">    dbWarehouse.setStock(warehouse.getStock());</span>
+<span class="fc" id="L26">    dbWarehouse.setCreatedAt(warehouse.getCreatedAt());</span>
+<span class="fc" id="L27">    dbWarehouse.setArchivedAt(warehouse.getArchivedAt());</span>
+<span class="fc" id="L28">    dbWarehouse.setVersion(warehouse.getVersion());</span>
+
+<span class="fc" id="L30">    this.persist(dbWarehouse);</span>
+<span class="fc" id="L31">  }</span>
+
+  @Override
+  public void update(Warehouse warehouse) {
+    // Find the existing DbWarehouse entity to update
+<span class="nc" id="L36">    DbWarehouse dbWarehouse = find(&quot;businessUnitCode&quot;, warehouse.getBusinessUnitCode()).firstResult();</span>
+
+<span class="nc bnc" id="L38" title="All 2 branches missed.">    if (dbWarehouse != null) {</span>
+      // Update fields
+<span class="nc" id="L40">      dbWarehouse.setLocation(warehouse.getLocation());</span>
+<span class="nc" id="L41">      dbWarehouse.setCapacity(warehouse.getCapacity());</span>
+<span class="nc" id="L42">      dbWarehouse.setStock(warehouse.getStock());</span>
+<span class="nc" id="L43">      dbWarehouse.setArchivedAt(warehouse.getArchivedAt());</span>
+      // Note: version field is handled by JPA @Version annotation
+
+      // Using merge() respects optimistic locking (@Version field)
+      // If another transaction modified this entity, OptimisticLockException will be thrown
+<span class="nc" id="L48">      getEntityManager().merge(dbWarehouse);</span>
+<span class="nc" id="L49">      getEntityManager().flush();</span>
+    }
+<span class="nc" id="L51">  }</span>
+
+  @Override
+  public void remove(Warehouse warehouse) {
+    // TODO Auto-generated method stub
+<span class="nc" id="L56">    throw new UnsupportedOperationException(&quot;Unimplemented method 'remove'&quot;);</span>
+  }
+
+  @Override
+  @Transactional
+  public Warehouse findByBusinessUnitCode(String buCode) {
+<span class="fc" id="L62">    DbWarehouse dbWarehouse = find(&quot;businessUnitCode&quot;, buCode).firstResult();</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">    return dbWarehouse != null ? dbWarehouse.toWarehouse() : null;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

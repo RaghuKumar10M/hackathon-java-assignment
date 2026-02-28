@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StoreResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java-code-assignment</a> &gt; <a href="index.source.html" class="el_package">com.fulfilment.application.monolith.stores.adapters.restapi</a> &gt; <span class="el_source">StoreResource.java</span></div><h1>StoreResource.java</h1><pre class="source lang-java linenums">package com.fulfilment.application.monolith.stores.adapters.restapi;
+
+
+import com.fulfilment.application.monolith.stores.StoreCreatedEvent;
+import com.fulfilment.application.monolith.stores.StoreUpdatedEvent;
+import com.fulfilment.application.monolith.stores.adapters.carrier.StoreDetails;
+import com.fulfilment.application.monolith.stores.domain.ports.StoreOperation;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
+
+import java.util.List;
+
+@Path(&quot;/store&quot;)
+@RequestScoped
+@Produces(&quot;application/json&quot;)
+@Consumes(&quot;application/json&quot;)
+<span class="nc" id="L20">public class StoreResource {</span>
+
+    @Inject
+    StoreOperation storeOperation;
+
+    @Inject
+    Event&lt;StoreCreatedEvent&gt; storeCreatedEvent;
+
+    @Inject Event&lt;StoreUpdatedEvent&gt; storeUpdatedEvent;
+
+    public List&lt;StoreDetails&gt; getStores() {
+<span class="nc" id="L31">        return storeOperation.getAllStores();</span>
+    }
+
+    @GET
+    @Path(&quot;{id}&quot;)
+    public StoreDetails getStore(Long id) {
+<span class="nc" id="L37">        return storeOperation.findByStoreId(id);</span>
+    }
+
+    @POST
+    public Response create(StoreDetails storeDetails) {
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if(storeDetails.id() != null) {</span>
+<span class="nc" id="L43">            throw new WebApplicationException(&quot;Id was invalidly set on request.&quot;, 422);</span>
+        }
+<span class="nc" id="L45">        StoreDetails persistedData = storeOperation.create(storeDetails);</span>
+
+<span class="nc" id="L47">        storeCreatedEvent.fireAsync(new StoreCreatedEvent(persistedData));</span>
+
+<span class="nc" id="L49">        return Response.ok(persistedData).status(201).build();</span>
+    }
+
+    @PUT
+    @Path(&quot;{id}&quot;)
+    public StoreDetails update(Long id, StoreDetails updateDetails) {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (updateDetails.name() == null) {</span>
+<span class="nc" id="L56">            throw new WebApplicationException(&quot;Store Name was not set on request.&quot;, 422);</span>
+        }
+
+<span class="nc" id="L59">        StoreDetails updatedStoreDetails = storeOperation.update(id, updateDetails);</span>
+
+<span class="nc" id="L61">        storeUpdatedEvent.fireAsync(new StoreUpdatedEvent(updatedStoreDetails));</span>
+
+<span class="nc" id="L63">        return updatedStoreDetails;</span>
+    }
+
+    @PATCH
+    @Path(&quot;{id}&quot;)
+    public StoreDetails patch(Long id, StoreDetails updateDetails) {
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (updateDetails.name() == null) {</span>
+<span class="nc" id="L70">            throw new WebApplicationException(&quot;Store Name was not set on request.&quot;, 422);</span>
+        }
+<span class="nc" id="L72">        StoreDetails storeDetails = storeOperation.findByStoreId(id);</span>
+
+<span class="nc" id="L74">        storeUpdatedEvent.fireAsync(new StoreUpdatedEvent(storeDetails));</span>
+<span class="nc" id="L75">        return storeDetails;</span>
+    }
+
+    @DELETE
+    @Path(&quot;{id}&quot;)
+    public Response delete(Long id) {
+
+<span class="nc" id="L82">        storeOperation.remove(id);</span>
+<span class="nc" id="L83">        return Response.status(204).build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
