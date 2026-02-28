@@ -1,5 +1,15 @@
 # GitHub Actions Workflows
 
+## Available Workflows
+
+### 1. build-and-test.yml (Recommended)
+Main workflow with enhanced test reporting using `EnricoMi/publish-unit-test-result-action`.
+
+### 2. build-and-test-simple.yml (Fallback)
+Simplified workflow without external test reporters, only uses artifact uploads.
+
+**Note:** If you encounter permission errors, use the simple workflow by renaming it or disabling the main one.
+
 ## Build and Test Workflow
 
 ### Overview
@@ -8,6 +18,12 @@ This workflow automatically compiles the Java code and runs all unit tests on ev
 ### Triggers
 - **Push**: Runs on every push to any branch
 - **Pull Request**: Runs on pull requests to any branch
+
+### Permissions
+The workflow requires:
+- `contents: read` - To checkout code
+- `checks: write` - To publish test results
+- `pull-requests: write` - To comment on PRs (optional)
 
 ### Workflow Steps
 
