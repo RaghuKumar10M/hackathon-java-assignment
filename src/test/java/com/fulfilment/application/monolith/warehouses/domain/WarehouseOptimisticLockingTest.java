@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Sophisticated Test: Optimistic Locking
- * 
  * Demonstrates handling of concurrent modifications using JPA's @Version field.
  * Optimistic locking prevents lost updates when multiple transactions
  * try to modify the same entity.
@@ -49,7 +48,6 @@ class WarehouseOptimisticLockingTest {
 
   /**
    * Test that concurrent modifications trigger OptimisticLockException.
-   * 
    * Scenario:
    * 1. Transaction 1 reads warehouse (version = 0)
    * 2. Transaction 2 reads same warehouse (version = 0)
@@ -68,7 +66,7 @@ class WarehouseOptimisticLockingTest {
     assertEquals(warehouse1.getVersion(), warehouse2.getVersion());
 
     // First transaction updates
-    updateWarehouseInSeparateTransaction(warehouseId, 80);
+    updateWarehouseInSeparateTransaction(warehouseId);
     
     // Second transaction tries to update with stale version
     // This should throw OptimisticLockException
@@ -81,7 +79,7 @@ class WarehouseOptimisticLockingTest {
 
   @Test
   @Transactional
-  void testVersionIncrementsonUpdate() {
+  void testVersionIncrementsOnUpdate() {
     DbWarehouse warehouse = em.find(DbWarehouse.class, warehouseId);
     Long initialVersion = warehouse.getVersion();
 
@@ -98,9 +96,9 @@ class WarehouseOptimisticLockingTest {
    * Helper to simulate a separate transaction updating the warehouse.
    */
   @Transactional(TxType.REQUIRES_NEW)
-  void updateWarehouseInSeparateTransaction(Long id, int newStock) {
+  void updateWarehouseInSeparateTransaction(Long id) {
     DbWarehouse warehouse = em.find(DbWarehouse.class, id);
-    warehouse.setStock(newStock);
+    warehouse.setStock(80);
     em.merge(warehouse);
     em.flush();
   }

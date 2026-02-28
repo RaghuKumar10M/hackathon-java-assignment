@@ -69,7 +69,7 @@ public class StoreResource {
         if (updateDetails.name() == null) {
             throw new WebApplicationException("Store Name was not set on request.", 422);
         }
-        StoreDetails storeDetails = storeOperation.findByStoreId(id);
+        StoreDetails storeDetails = storeOperation.patch(id, updateDetails);
 
         storeUpdatedEvent.fireAsync(new StoreUpdatedEvent(storeDetails));
         return storeDetails;

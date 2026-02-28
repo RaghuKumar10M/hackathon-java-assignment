@@ -38,15 +38,22 @@ public class StoreRepository implements StoreDbOperation, PanacheRepository<DbSt
     @Override
     public StoreDetails update(Long id, StoreDetails storeDetails) {
         DbStore dbStore = dbStoreMapper.toStoreEntity(id, storeDetails);
-        this.persist(dbStore);
-        return dbStoreMapper.toStoreDetails(dbStore);
+        DbStore merged = this.getEntityManager().merge(dbStore);
+        return dbStoreMapper.toStoreDetails(merged);
     }
 
     @Override
     public StoreDetails patch(Long id, StoreDetails storeDetails) {
-        DbStore dbStore = dbStoreMapper.toStoreEntity(id, storeDetails);
-        this.persist(dbStore);
-        return dbStoreMapper.toStoreDetails(dbStore);
+        DbStore existingStore = this.findById(id);
+        if (existingStore != null) {
+            if (storeDetails.name() != null) {
+                existingStore.setName(storeDetails.name());
+            }
+            if (storeDetails.quantityProductsInStock() != 0) {
+                existingStore.setQuantityProductsInStock(storeDetails.quantityProductsInStock());
+            }
+        }
+        return dbStoreMapper.toStoreDetails(existingStore);
     }
 
     @Override

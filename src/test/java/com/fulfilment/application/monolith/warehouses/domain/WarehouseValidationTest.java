@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Sophisticated Test: Parameterized Testing
- * 
  * Demonstrates systematic edge case testing using @ParameterizedTest.
  * Instead of writing repetitive test methods, we define scenarios as data
  * and test them all with one test method.

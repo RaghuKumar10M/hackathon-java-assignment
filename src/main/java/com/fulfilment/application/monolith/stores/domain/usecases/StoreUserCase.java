@@ -54,7 +54,7 @@ public class StoreUserCase implements StoreOperation {
         if (storeDetails == null) {
             throw new WebApplicationException("Store with id of " + id + " does not exist.", 404);
         }
-        return storeDetails;
+        return storeDbOperation.patch(id, store);
     }
 
     @Override

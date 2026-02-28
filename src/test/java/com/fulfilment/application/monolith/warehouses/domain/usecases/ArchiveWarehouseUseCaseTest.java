@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for the Archive Warehouse use case.
- *
  * Covers basic archive operations and concurrent modification scenarios.
  */
 @QuarkusTest
@@ -105,7 +104,7 @@ class ArchiveWarehouseUseCaseTest {
   @Test
   void testConcurrentArchiveAndStockUpdateCausesOptimisticLockException() throws InterruptedException {
     // Setup: Create a warehouse
-    String businessUnitCode = createWarehouseInNewTransaction("CONCURRENT-ARCHIVE-001", "AMSTERDAM-001");
+    String businessUnitCode = createWarehouseInNewTransaction();
 
     ExecutorService executor = Executors.newFixedThreadPool(2);
     CountDownLatch startLatch = new CountDownLatch(1);
@@ -129,7 +128,7 @@ class ArchiveWarehouseUseCaseTest {
     executor.submit(() -> {
       try {
         startLatch.await(); // Synchronize start
-        updateStockInNewTransaction(businessUnitCode, 75);
+        updateStockInNewTransaction(businessUnitCode);
       } catch (Exception e) {
         exceptionCaught.set(true);
       } finally {
@@ -174,9 +173,9 @@ class ArchiveWarehouseUseCaseTest {
   }
 
   @Transactional(TxType.REQUIRES_NEW)
-  String createWarehouseInNewTransaction(String businessUnitCode, String location) {
-    createWarehouse(businessUnitCode, location);
-    return businessUnitCode;
+  String createWarehouseInNewTransaction() {
+    createWarehouse("CONCURRENT-ARCHIVE-001", "AMSTERDAM-001");
+    return "CONCURRENT-ARCHIVE-001";
   }
 
   @Transactional(TxType.REQUIRES_NEW)
@@ -186,9 +185,9 @@ class ArchiveWarehouseUseCaseTest {
   }
 
   @Transactional(TxType.REQUIRES_NEW)
-  void updateStockInNewTransaction(String businessUnitCode, int newStock) {
+  void updateStockInNewTransaction(String businessUnitCode) {
     Warehouse warehouse = warehouseRepository.findByBusinessUnitCode(businessUnitCode);
-    warehouse.setStock(newStock);
+    warehouse.setStock(75);
     warehouseRepository.update(warehouse);
   }
 }

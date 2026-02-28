@@ -60,7 +60,7 @@ class ReplaceWarehouseUseCaseTest {
   @Transactional
   void testReplaceWarehouseSuccessfully() {
     // Create a warehouse
-    createWarehouse("REPLACE-TEST-001", "AMSTERDAM-001", 80, 40);
+    createWarehouse("REPLACE-TEST-001", 80, 40);
 
     // Replace it with new values
     Warehouse replacement = new Warehouse();
@@ -104,7 +104,7 @@ class ReplaceWarehouseUseCaseTest {
   @Transactional
   void testCannotReplaceArchivedWarehouse() {
     // Create and archive a warehouse
-    Warehouse warehouse = createWarehouse("REPLACE-TEST-002", "AMSTERDAM-001", 80, 40);
+    Warehouse warehouse = createWarehouse("REPLACE-TEST-002", 80, 40);
     warehouse.setArchivedAt(LocalDateTime.now());
     warehouseRepository.update(warehouse);
 
@@ -129,7 +129,7 @@ class ReplaceWarehouseUseCaseTest {
   @Transactional
   void testCapacityAndStockValidations(InvalidReplaceScenario scenario) {
     // Create a baseline warehouse
-    createWarehouse("REPLACE-VALIDATION", "AMSTERDAM-001", 80, 40);
+    createWarehouse("REPLACE-VALIDATION", 80, 40);
 
     // Try to replace with invalid values
     Warehouse replacement = new Warehouse();
@@ -158,7 +158,7 @@ class ReplaceWarehouseUseCaseTest {
   @Test
   void testConcurrentReplaceCausesLostUpdates() throws InterruptedException {
     // Setup: Create a warehouse
-    String businessUnitCode = createWarehouseInNewTransaction("CONCURRENT-REPLACE-001", "AMSTERDAM-001", 100, 50);
+    String businessUnitCode = createWarehouseInNewTransaction();
 
     ExecutorService executor = Executors.newFixedThreadPool(2);
     CountDownLatch startLatch = new CountDownLatch(1);
@@ -230,10 +230,10 @@ class ReplaceWarehouseUseCaseTest {
   // Helper methods
 
   @Transactional(TxType.REQUIRES_NEW)
-  Warehouse createWarehouse(String businessUnitCode, String location, int capacity, int stock) {
+  Warehouse createWarehouse(String businessUnitCode, int capacity, int stock) {
     Warehouse warehouse = new Warehouse();
     warehouse.setBusinessUnitCode(businessUnitCode);
-    warehouse.setLocation(location);
+    warehouse.setLocation("AMSTERDAM-001");
     warehouse.setCapacity(capacity);
     warehouse.setStock(stock);
     warehouse.setCreatedAt(LocalDateTime.now());
@@ -243,9 +243,9 @@ class ReplaceWarehouseUseCaseTest {
   }
 
   @Transactional(TxType.REQUIRES_NEW)
-  String createWarehouseInNewTransaction(String businessUnitCode, String location, int capacity, int stock) {
-    createWarehouse(businessUnitCode, location, capacity, stock);
-    return businessUnitCode;
+  String createWarehouseInNewTransaction() {
+    createWarehouse("CONCURRENT-REPLACE-001", 100, 50);
+    return "CONCURRENT-REPLACE-001";
   }
 
   @Transactional(TxType.REQUIRES_NEW)
