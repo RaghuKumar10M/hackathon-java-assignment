@@ -9,6 +9,8 @@ import com.warehouse.api.beans.Warehouse;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.List;
 
@@ -21,8 +23,15 @@ public class WarehouseResourceImpl implements WarehouseResource {
   @Inject ReplaceWarehouseOperation replaceWarehouseOperation;
 
   @Override
-  public List<Warehouse> listAllWarehousesUnits() {
-    return warehouseStore.getAll().stream().map(this::toWarehouseResponse).toList();
+  public List<Warehouse> listAllWarehousesUnits(@QueryParam("excludeArchived") @DefaultValue("false") Boolean excludeArchived) {
+    return warehouseStore.getAll().stream()
+            .filter(w -> {
+                if (excludeArchived != null && excludeArchived) {
+                    return w.getArchivedAt() == null; // Only include non-archived warehouses
+                }
+                return true; // Include all warehouses if excludeArchived is false
+            }) // Filter out archived warehouses if includeArchived is false
+            .map(this::toWarehouseResponse).toList();
   }
 
   @Override

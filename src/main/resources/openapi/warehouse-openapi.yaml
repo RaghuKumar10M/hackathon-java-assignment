@@ -8,6 +8,14 @@ paths:
   /warehouse:
     get:
       summary: List all warehouses units
+      parameters:
+        - name: excludeArchived
+          in: query
+          required: false
+          description: Exclude archived warehouse units in the response
+          schema:
+            type: boolean
+            default: true
       responses:
         '200':
           description: A list of warehouse units
